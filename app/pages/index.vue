@@ -24,12 +24,12 @@
 								<h1 class="font-bold text-lg">
 									{{ song.title }}
 								</h1>
-								<p class="">
+						<p class="">
 									{{ song.artist }}
 								</p>
 							</div>
 							<NuxtLink :to="`/song/${song.id}`">
-								<UButton class="w-full justify-center items-center hover:cursor-pointer" variant="solid" color="neutral">
+								<UButton class="w-full justify-center items-center" variant="solid" color="neutral">
 									<h1 class="text-lg font-semibold">
 										Start Practice
 									</h1>

@@ -5,16 +5,14 @@
 				Ekubo
 			</h1>
 		</NuxtLink>
-		<UButton class="hover:cursor-pointer text-center flex justify-center items-center" :icon="colorMode.value === 'dark' ? 'line-md:sunny-outline-loop' : 'line-md:moon-alt-loop'" size="md" @click="toggleTheme" />
+		<div class="flex gap-3">
+			<UButton class="flex justify-center items-center" icon="material-symbols:add-circle-outline" to="/create" size="md" color="primary" variant="solid">Add Song</UButton>
+			<ThemeToggleButton />
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-const colorMode = useColorMode()
-
-function toggleTheme() {
-  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
-}
 </script>
 
 <style scoped>

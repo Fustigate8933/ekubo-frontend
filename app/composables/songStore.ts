@@ -1,9 +1,4 @@
-interface Song {
-  id: string
-  title: string
-  artist: string
-  src: string
-}
+import type { Song } from '@/types/song'
 
 type SongStore = {
 	[key: string]: Song
