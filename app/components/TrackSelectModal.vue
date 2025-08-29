@@ -9,10 +9,12 @@
 			</div>
 		</template>
     <template #body>
-			<div class="flex flex-col gap-5">
+			<h1 v-if="loading">Loading...</h1>
+			<div v-else-if="tracks.length > 0" class="flex flex-col gap-5">
 				<div id="embed-iframe" />
 				<URadioGroup v-model="selectedTrack" label-key="name" value-key="self" description-key="artistNames" variant="table" :items="tracksForRadio" :disabled="!IFrameReady" />
 			</div>
+			<h1 v-else>No tracks found!</h1>
 		</template>
     <template #footer>
       <UButton label="Submit" color="neutral" />
@@ -23,6 +25,7 @@
 <script setup lang="ts">
 import type { SongResponse, SpotifyIFrameApi, EmbedController, Track } from '@/types/song'
 
+const loading = ref(false)
 let embedController: EmbedController | null = null
 let IFrameAPI: SpotifyIFrameApi | null = null
 const controllerCreated = ref(false)
@@ -50,6 +53,8 @@ const tracksForRadio = computed(() => {
 const selectedTrack = ref<Track | null>(null)
 
 const fetchTracks = async () => {
+	loading.value = true
+
   try {
     const { data, error } = await useFetch<{ tracks: Track[] }>("/api/getTracks", {
       params: {
@@ -66,7 +71,9 @@ const fetchTracks = async () => {
     }
   } catch (e) {
     console.error("Unexpected error:", e);
-  }
+	} finally {
+		loading.value = false
+	}
 };
 
 watch(selectedTrack, (newTrack) => {
