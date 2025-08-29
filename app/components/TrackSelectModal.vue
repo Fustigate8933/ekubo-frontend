@@ -1,5 +1,5 @@
 <template>
-	<UModal description="Select an audio track. This is required since the lyrics aren't provided by the Spotify API" :ui="{ content: 'max-w-3xl h-[80vh]', footer: 'justify-end' }">
+	<UModal description="Select an audio track. This is required since the lyrics aren't provided by the Spotify API." :ui="{ content: 'max-w-3xl h-[80vh]', footer: 'justify-end' }">
 		<template #title>
 			<div class="flex gap-3">
 				<h1>
@@ -25,12 +25,12 @@
 <script setup lang="ts">
 import type { SongResponse, SpotifyIFrameApi, EmbedController, Track } from '@/types/song'
 
+const props = defineProps<{ songData: SongResponse }>()
 const loading = ref(false)
 let embedController: EmbedController | null = null
 let IFrameAPI: SpotifyIFrameApi | null = null
 const controllerCreated = ref(false)
 const IFrameReady = ref(true)
-const props = defineProps<{ songData: SongResponse }>()
 const { trackName, artistName, duration } = props.songData
 const tracks = ref<Track[]>([])
 const tracksForRadio = computed(() => {
