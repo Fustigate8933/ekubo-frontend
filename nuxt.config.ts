@@ -18,5 +18,16 @@ export default defineNuxtConfig({
 		public: {
 			apiBase: process.env.API_BASE || 'http://127.0.0.1:8000',
 		},
+	},
+
+	app: {
+		head: {
+			script: [
+				{
+					src: 'https://open.spotify.com/embed/iframe-api/v1',
+					async: true
+				}
+			]
+		}
 	}
 })

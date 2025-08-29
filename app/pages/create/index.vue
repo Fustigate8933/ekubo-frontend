@@ -1,7 +1,7 @@
 <template>
   <div class="w-full h-full flex flex-col gap-10">
     <div class="flex justify-between">
-      <div class="p-2">
+      <div>
         <h1 class="font-bold text-2xl">Add a new song</h1>
         <p>Search for a Japanese song to add to your practice library</p>
       </div>
@@ -16,7 +16,7 @@
       >
     </div>
     <div class="flex flex-col gap-3 w-full rounded-xl p-5 bg-secondary/20">
-      <h1 class="text-lg font-semibold">Search songs</h1>
+      <h1 class="text-lg">Search songs</h1>
       <div class="w-full flex gap-3" @keydown.enter="handleSearch">
         <UInput
           v-model="search"
@@ -50,14 +50,6 @@
           @click="handleSearchFromPopular('きみにとどけ')"
           >きみにとどけ</UButton
         >
-        <UButton
-          class="self-start"
-          variant="soft"
-          color="neutral"
-          size="sm"
-          @click="handleSearchFromPopular('好きだから')"
-          >好きだから</UButton
-        >
       </div>
     </div>
     <UCard
@@ -78,11 +70,11 @@
               {{ song.artistName }}
             </p>
 						<div class="flex gap-2">
-							<UButton color="secondary" variant="outline">
+							<UButton color="secondary" variant="outline" @click="handleAddSong(song)">
 								<h1>Preview lyrics</h1>
 							</UButton>
-							<UButton color="neutral" @click="trackSelectModalOpen(song)">
-								<h1>Select</h1>
+							<UButton color="neutral" @click="handleAddSong(song)">
+								<h1>Continue</h1>
 							</UButton>
 						</div>
           </div>
@@ -93,22 +85,14 @@
 </template>
 
 <script setup lang="ts">
-import type { SongResponse } from '@/types/song'
-import TrackSelectModal from '@/components/TrackSelectModal.vue';
-import { UButton } from '#components';
+import type { SongResponse } from '@/types/song';
 
-const search = ref<string | null>(null)
-const loading = ref<boolean>(false)
-const searchResults = ref<SongResponse[]>([])
+const search = ref<string | null>(null);
+const loading = ref<boolean>(false);
+const searchResults = ref<SongResponse[]>([]);
 const filteredSearchResults = computed(() =>
   searchResults.value.filter((result) => result.syncedLyrics),
 ); // only want the synced lyrics
-const overlay = useOverlay()
-const trackSelectModal = overlay.create(TrackSelectModal)
-
-const trackSelectModalOpen = async (songData: SongResponse) => {
-	trackSelectModal.open({ songData })
-}
 
 const handleSearch = async () => {
   loading.value = true;
@@ -138,6 +122,11 @@ const handleSearchFromPopular = (name: string) => {
   search.value = name;
   handleSearch();
 };
+
+const handleAddSong = async (song: SongResponse) => {
+  console.log(song);
+};
 </script>
 
 <style scoped></style>
+

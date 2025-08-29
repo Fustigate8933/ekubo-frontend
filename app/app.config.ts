@@ -13,5 +13,12 @@ export default defineAppConfig({
 					'transition-colors'
 				]
 			}
-		}}
+		},
+		radioGroup: {
+			slots:{
+				item: "flex items-center gap-2",
+				container: "flex items-center"
+			}
+		}
+	}
 })
