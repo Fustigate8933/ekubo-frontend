@@ -16,6 +16,7 @@
     "@iconify-json/simple-icons": "^1.2.48",
     "@nuxt/image": "1.11.0",
     "@nuxt/ui": "^3.3.2",
+    "jwt-decode": "^4.0.0",
     "nuxt": "^4.0.3",
     "wanakana": "^5.3.1"
   },

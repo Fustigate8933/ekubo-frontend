@@ -107,7 +107,3 @@ interface Image {
   width: number;
   url: string;
 }
-
-export type LoginResponse = {
-  token: string;
-};

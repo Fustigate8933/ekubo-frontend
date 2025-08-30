@@ -30,7 +30,6 @@
 <script setup lang="ts">
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
-import type { LoginResponse } from '~/types/song'
 
 definePageMeta({
 	middleware: "guest"
@@ -38,7 +37,6 @@ definePageMeta({
 
 const route = useRoute()
 const router = useRouter()
-const authToken = useAuthToken()
 
 const loading = ref(false)
 const isLogin = ref(true)
@@ -68,32 +66,18 @@ type LoginFormData = z.infer<typeof schema.value>
 
 async function onSubmit(event: FormSubmitEvent<LoginFormData>) {
 	loading.value = true
-	const endpoint = isLogin.value ? '/api/login' : '/api/signup'
+
+	const login = await useLogin()
+	const signup = await useSignup()
 
 	try {
-		const res = await $fetch<LoginResponse>(endpoint, {
-			method: 'POST',
-			body: event.data,
-		})
-
-		if (isLogin.value) {
-			localStorage.setItem("token", res.token)
-			authToken.value = res.token
-
-			const redirectUri = (route.query.redirect as string) || "/"
-			router.push(redirectUri)
-		} else {
-			const res = await $fetch<LoginResponse>('/api/login', {
-				method: 'POST',
-				body: event.data
-			})
-
-			localStorage.setItem("token", res.token)
-			authToken.value = res.token
-
-			const redirectUri = (route.query.redirect as string) || "/"
-			router.push(redirectUri)
+		if (!isLogin.value) {
+			await signup(event.data)
 		}
+		await login(event.data)
+
+		const redirectUri = (route.query.redirect as string) || "/"
+		router.push(redirectUri)
 	} catch (e) {
 		console.error(e)
 	} finally {
