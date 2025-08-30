@@ -7,6 +7,8 @@
 }
 
 :root {
+	width: 100%;
+	height: 100%;
   --ui-primary: oklch(62.17% 0.174 252.17);
   --ui-secondary: oklch(0.7551 0.0964 251.01);
   --ui-bg: oklch(98.32% 0.007 247.89);
@@ -20,4 +22,14 @@
   --ui-bg: oklch(10.96% 0.018 236.44);
   --ui-text: oklch(94.14% 0.026 244.43);
   --ui-info: oklch(56.51% 0.138 55.94);
+}
+
+body {
+	width: 100%;
+	height: 100%;
+}
+
+#__nuxt {
+  width: 100%;
+  height: 100%;
 }
