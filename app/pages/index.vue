@@ -1,5 +1,5 @@
 <template>
-	<div id="index-wrapper" class="flex flex-col items-center gap-10">
+	<div id="index-wrapper" class="flex flex-col items-center gap-10 pt-10">
 		<h1 class="font-bold text-4xl text-(--ui-primary)">
 			Choose a song to practice
 		</h1>
@@ -24,7 +24,7 @@
 								<h1 class="font-bold text-lg">
 									{{ song.title }}
 								</h1>
-						<p class="">
+								<p class="">
 									{{ song.artist }}
 								</p>
 							</div>

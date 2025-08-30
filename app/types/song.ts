@@ -108,3 +108,6 @@ interface Image {
   url: string;
 }
 
+export type LoginResponse = {
+  token: string;
+};

@@ -6,7 +6,19 @@
 			</h1>
 		</NuxtLink>
 		<div class="flex gap-3">
-			<UButton class="flex justify-center items-center" icon="material-symbols:person-add-rounded" to="/login" size="md" color="secondary" variant="solid">Login / SignUp</UButton>
+			<UButton v-if="!authToken" class="flex justify-center items-center" icon="material-symbols:person-add-rounded" to="/login" size="md" color="info" variant="solid">Login / SignUp</UButton>
+			<UDropdownMenu 
+				v-else 
+				arrow
+				:items="dropdownItems" 
+				:content="{
+					align: 'start',
+					side: 'bottom',
+					sideOffset: 6
+				}"
+			>
+				<UButton class="flex justify-center items-center" size="md" color="info" variant="solid">USERNAME</UButton>
+			</UDropdownMenu>
 			<UButton class="flex justify-center items-center" icon="material-symbols:add-circle-outline" to="/create" size="md" color="primary" variant="solid">Add Song</UButton>
 			<ThemeToggleButton />
 		</div>
@@ -14,6 +26,16 @@
 </template>
 
 <script setup lang="ts">
+const authToken = useAuthToken()
+const logout = useLogout()
+
+const dropdownItems = [
+	{
+		label: "Logout",
+		icon: "material-symbols:logout-rounded",
+		onSelect: logout
+	}
+]
 </script>
 
 <style scoped>

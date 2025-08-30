@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full flex flex-col gap-10">
+  <div class="w-full h-full flex flex-col gap-10 pt-10">
     <div class="flex justify-between">
       <div class="p-2">
         <h1 class="font-bold text-2xl">Add a new song</h1>
