@@ -1,12 +1,5 @@
 <template>
 	<div id="index-wrapper" class="flex flex-col items-center gap-10 py-10">
-		<h1 class="font-bold text-4xl text-(--ui-primary)">
-			Your Library
-		</h1>
-
-		<p class="text-lg max-w-3xl text-center">
-			Select from your collection of Japanese songs to practice your listening skills. Each song will play line by line, allowing you to transcribe and learn at your own pace.
-		</p>
 
 		<!-- Not logged in state -->
 		<div v-if="!isLoggedIn" class="flex flex-col items-center gap-6">
@@ -23,6 +16,13 @@
 
 		<!-- Logged in state -->
 		<div v-else class="flex flex-col items-center gap-10 w-full">
+			<h1 class="font-bold text-4xl text-(--ui-primary)">
+				Your Library
+			</h1>
+
+			<p class="text-lg max-w-3xl text-center">
+				Select from your collection of Japanese songs to practice your listening skills. Each song will play line by line, allowing you to transcribe and learn at your own pace.
+			</p>
 			<div class="w-full">
 				<UInput v-model="search" icon="i-lucide-search" size="lg" variant="outline" placeholder="Search by song or artist" />
 			</div>

@@ -10,9 +10,9 @@
 		<UButton to="/" color="primary">Back to Library</UButton>
 	</div>
 
-	<div v-else-if="songData" class="min-h-screen bg-gray-50 dark:bg-gray-900">
+	<div v-else-if="songData" class="min-h-screen">
 		<!-- Header Section -->
-		<div class="bg-white dark:bg-gray-800 shadow-sm border-b">
+		<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
 			<div class="max-w-6xl mx-auto px-4 py-6">
 				<div class="flex items-center justify-between">
 					<!-- Song Info -->

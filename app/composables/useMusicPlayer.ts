@@ -247,3 +247,4 @@ declare global {
     Spotify: any
   }
 }
+
