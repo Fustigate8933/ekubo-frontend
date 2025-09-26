@@ -141,6 +141,7 @@ const handleSubmit = async () => {
       title: props.songData.trackName,
       artist: props.songData.artistName,
       album: selectedTrack.value.album?.name,
+      album_image_url: selectedTrack.value.album?.images?.[0]?.url,
       duration: Math.floor(selectedTrack.value.duration_ms / 1000),
       spotify_id: selectedTrack.value.id
     }

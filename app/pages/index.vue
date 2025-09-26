@@ -1,7 +1,7 @@
 <template>
-	<div id="index-wrapper" class="flex flex-col items-center gap-10 pt-10">
+	<div id="index-wrapper" class="flex flex-col items-center gap-10 py-10">
 		<h1 class="font-bold text-4xl text-(--ui-primary)">
-			Your Practice Library
+			Your Library
 		</h1>
 
 		<p class="text-lg max-w-3xl text-center">
@@ -57,8 +57,14 @@
 			<!-- Songs grid -->
 			<div v-else class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<UCard v-for="(libraryItem, idx) in filteredSongs" :key="idx" variant="outline" class="overflow-hidden">
-					<div class="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center">
-						<UIcon name="i-lucide-music" class="text-white text-4xl" />
+					<div class="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center relative overflow-hidden">
+						<img 
+							v-if="libraryItem.matched_song?.song?.album_image_url" 
+							:src="libraryItem.matched_song.song.album_image_url" 
+							:alt="`${libraryItem.matched_song?.song?.title} album cover`"
+							class="w-full h-full object-cover"
+						/>
+						<UIcon v-else name="i-lucide-music" class="text-white text-4xl" />
 					</div>
 					<template #footer>
 						<div class="flex flex-col gap-2">

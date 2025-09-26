@@ -33,6 +33,7 @@ export interface SongResponse {
   title: string;
   artist: string;
   album?: string;
+  album_image_url?: string;
   duration?: number;
   spotify_id?: string;
   created_at: string;
@@ -42,6 +43,7 @@ export interface SongCreate {
   title: string;
   artist: string;
   album?: string;
+  album_image_url?: string;
   duration?: number;
   spotify_id?: string;
 }
@@ -50,6 +52,7 @@ export interface SongUpdate {
   title?: string;
   artist?: string;
   album?: string;
+  album_image_url?: string;
   duration?: number;
   spotify_id?: string;
 }
