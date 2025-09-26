@@ -1,7 +1,6 @@
 export default defineNuxtRouteMiddleware((to) => {
-  const token = import.meta.client ? localStorage.getItem("token") : null
+  const token = useCookie<string | null>("token").value
 
-  // only protect certain routes
   const protectedRoutes = ["/song", "/create"]
 
   if (!token && protectedRoutes.includes(to.path)) {

@@ -100,10 +100,7 @@
               {{ song.artistName }}
             </p>
 						<div class="flex gap-2">
-							<UButton color="secondary" variant="outline">
-								<h1>Preview lyrics</h1>
-							</UButton>
-							<UButton color="neutral" @click="trackSelectModalOpen(song)">
+							<UButton color="primary" @click="trackSelectModalOpen(song)">
 								<h1>Add Track</h1>
 							</UButton>
 						</div>
@@ -124,12 +121,19 @@ const loading = ref<boolean>(false)
 const searchResults = ref<SongResponse[]>([])
 const filteredSearchResults = computed(() =>
   searchResults.value.filter((result) => result.syncedLyrics),
+	console.log(searchResults.value)
 ); // only want the synced lyrics
 const overlay = useOverlay()
 const trackSelectModal = overlay.create(TrackSelectModal)
 
 const trackSelectModalOpen = async (songData: SongResponse) => {
-	trackSelectModal.open({ songData })
+	trackSelectModal.open({ 
+		songData,
+		onClose: () => {
+			// Refresh the page or library when modal closes
+			// This will be handled by the modal's redirect
+		}
+	})
 }
 
 const handleSearch = async () => {

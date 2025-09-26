@@ -27,19 +27,34 @@ export interface EmbedController {
 	addListener: (name: string, callback: () => void) => void
 }
 
+// Backend API Types (matching Pydantic schemas)
 export interface SongResponse {
   id: number;
-  name: string;
-  trackName: string;
-  artistName: string;
-  albumName: string;
-  duration: number;
-  instrumental: boolean;
-  plainLyrics: string;
-  syncedLyrics: string | null;
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  spotify_id?: string;
+  created_at: string;
 }
 
+export interface SongCreate {
+  title: string;
+  artist: string;
+  album?: string;
+  duration?: number;
+  spotify_id?: string;
+}
 
+export interface SongUpdate {
+  title?: string;
+  artist?: string;
+  album?: string;
+  duration?: number;
+  spotify_id?: string;
+}
+
+// Frontend UI Types
 export interface Song {
   id: string
   title: string
