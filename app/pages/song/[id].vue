@@ -208,6 +208,20 @@
                 >
                 <span>Continue to the next line and repeat</span>
               </li>
+              <li class="flex items-start gap-3">
+                <span
+                  class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
+                  >💡</span
+                >
+                <span>If the spotify player below says "preview", try logging into Spotify Web Player in another tab first and refresh Ekubo!</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span
+                  class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
+                  >❗</span
+                >
+                <span>Don't click the spotify player below, may break!</span>
+              </li>
             </ol>
           </UCard>
         </div>
@@ -266,6 +280,10 @@ const userInput = ref('')
 const lyricsLines = ref<Array<{ text: string; timestamp: number }>>([])
 const totalLines = ref(0)
 const currentLineText = ref('')
+
+const checkAnswer = () => {
+	
+}
 
 // Parse synced lyrics into lines with timestamps
 const parseLyrics = (syncedLyrics: string) => {
