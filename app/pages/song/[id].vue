@@ -139,16 +139,28 @@
             <div
               class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4"
             >
-							<div v-if="!highlightedResult.length">
+							<div>
 								<p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
 									Current Line:
 								</p>
-								<p class="text-lg font-medium text-gray-900 dark:text-white">
-									{{ currentLineText }}
-								</p>
+								<div class="flex items-center gap-2">
+									<p
+										class="text-lg font-medium text-gray-900 dark:text-white transition-all duration-300"
+										:class="showAnswer ? '' : 'blur-sm select-none'"
+									>
+										{{ currentLineText }}
+									</p>
+									<UButton
+										variant="ghost"
+										size="sm"
+										@click="toggleAnswerVisibility"
+									>
+										<UIcon :name="showAnswer ? 'i-lucide-eye-off' : 'i-lucide-eye'" />
+									</UButton>
+								</div>
 							</div>
 
-							<div v-else>
+							<div v-if="highlightedResult.length">
 								<p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
 									Your Answer:
 								</p>
@@ -325,6 +337,11 @@ const currentLineText = ref('')
 // matching
 const highlightedResult = ref<Array<{ char: string; status: 'correct' | 'present' | 'absent' | 'missing' }>>([])
 const extraInput = ref<Array<{ char: string; status: 'absent' | 'present' }>>([]) // user input that is longer than the correct lyric
+const showAnswer = ref(false)
+
+const toggleAnswerVisibility = () => {
+  showAnswer.value = !showAnswer.value
+}
 
 const checkAnswer = () => {
 	const correct = (currentLineText.value || '').trim()

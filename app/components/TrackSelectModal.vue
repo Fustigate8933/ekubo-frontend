@@ -1,11 +1,11 @@
 <template>
-	<UModal description="Select an audio track. This is required since the lyrics aren't provided by the Spotify API." :ui="{ content: 'max-w-3xl h-[80vh]', footer: 'justify-end' }">
+	<UModal description="Match an audio track. This is required since the lyrics aren't provided by the Spotify API. Try to match the track length with the length in the tag above." :ui="{ content: 'max-w-3xl h-[80vh]', footer: 'justify-end' }">
 		<template #title>
 			<div class="flex gap-3">
 				<h1>
 					{{ trackName }} ({{ artistName }})
 				</h1>
-				<UBadge color="secondary">{{ secondsToMinAndSec(duration) }}</UBadge>
+				<UBadge color="secondary" class="text-white font-bold">{{ secondsToMinAndSec(duration) }}</UBadge>
 			</div>
 		</template>
     <template #body>

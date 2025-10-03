@@ -54,7 +54,7 @@
       </div>
       <div class="flex items-center gap-3">
         <p class="text-sm text-gray-600 dark:text-gray-300">
-          Popular searches:
+          Recommendations:
         </p>
         <UButton
           class="self-start"
@@ -69,8 +69,8 @@
           variant="soft"
           color="neutral"
           size="sm"
-          @click="handleSearchFromPopular('好きだから')"
-          >好きだから</UButton
+          @click="handleSearchFromPopular('言葉にせずとも')"
+          >言葉にせずとも</UButton
         >
         <UButton
           class="self-start"
