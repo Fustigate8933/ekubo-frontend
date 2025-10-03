@@ -94,7 +94,7 @@
             </div>
 
             <!-- Music Player Controls -->
-            <div class="flex items-center justify-center gap-4 mb-6">
+            <div class="flex items-center justify-center gap-4">
               <UButton
                 variant="outline"
                 size="lg"
@@ -180,47 +180,47 @@
               Instructions
             </h2>
             <ol class="space-y-3 text-sm text-gray-600 dark:text-gray-300">
-              <li class="flex items-start gap-3">
+              <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >1</span
                 >
                 <span>Click the play button to listen to the current line</span>
               </li>
-              <li class="flex items-start gap-3">
+              <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >2</span
                 >
-                <span>Type what you hear in Japanese characters</span>
+                <span>Type what you hear in Japanese</span>
               </li>
-              <li class="flex items-start gap-3">
+              <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >3</span
                 >
                 <span>Click "Check Answer" to see how you did</span>
               </li>
-              <li class="flex items-start gap-3">
+              <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >4</span
                 >
                 <span>Continue to the next line and repeat</span>
               </li>
-              <li class="flex items-start gap-3">
+              <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >💡</span
                 >
-                <span>If the spotify player below says "preview", try logging into Spotify Web Player in another tab first and refresh Ekubo!</span>
+                <span>If the spotify player says "preview", try logging into Spotify Web Player (no premium required) first and refresh Ekubo!</span>
               </li>
-              <li class="flex items-start gap-3">
+              <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >❗</span
                 >
-                <span>Don't click the spotify player below, may break!</span>
+                <span class="">Don't click the spotify player below, may break!</span>
               </li>
             </ol>
           </UCard>
