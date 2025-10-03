@@ -28,7 +28,7 @@
                 :src="songData.matched_song.song.album_image_url"
                 :alt="`${songData.matched_song?.song?.title} album cover`"
                 class="w-full h-full object-cover"
-              />
+              >
               <UIcon
                 v-else
                 name="i-lucide-music"
@@ -106,24 +106,15 @@
 
               <UButton
                 class=""
-                :variant="spotifyIsPlaying ? 'solid' : 'outline'"
+                :variant="isPlaying ? 'solid' : 'outline'"
                 size="xl"
-                :disabled="!canPlay && !spotifyIsPlaying"
+                :disabled="!canPlay"
                 @click="togglePlayback"
               >
                 <UIcon
-                  :name="spotifyIsPlaying ? 'i-lucide-pause' : 'i-lucide-play'"
+                  :name="isPlaying ? 'i-lucide-pause' : 'i-lucide-play'"
                   class="text-xl"
                 />
-              </UButton>
-
-              <UButton
-                variant="outline"
-                size="lg"
-                @click="restartLine"
-                title="Restart current line"
-              >
-                <UIcon name="i-lucide-rotate-ccw" />
               </UButton>
 
               <UButton
@@ -258,10 +249,14 @@ let embedController: EmbedController | null = null
 let IFrameAPI: SpotifyIFrameApi | null = null
 const controllerCreated = ref(false)
 const IFrameReady = ref(false)
-const spotifyIsPlaying = ref(false)
-const currentPosition = ref(0)
+
+// Playback state refs
+const isPlaying = ref(false)
+const canPlay = ref(true)
+const currentPlaybackTime = ref(0) // keep float seconds
+const currentLineStartTime = ref(0) // keep float
+const currentLineEndTime = ref(0)   // keep float
 const isAutoPaused = ref(false)
-let autoPauseTimer: NodeJS.Timeout | null = null
 
 // Practice state
 const currentLine = ref(1)
@@ -282,10 +277,9 @@ const parseLyrics = (syncedLyrics: string) => {
     if (timestampMatch) {
       const minutes = parseInt(timestampMatch[1])
       const seconds = parseInt(timestampMatch[2])
-      const milliseconds = timestampMatch[3] ? parseInt(timestampMatch[3]) * 10 : 0
-      const totalSeconds = minutes * 60 + seconds + milliseconds / 1000
+      const centisec = timestampMatch[3] ? parseInt(timestampMatch[3]) : 0
+      const totalSeconds = minutes * 60 + seconds + centisec / 100
       const text = line.replace(/^\[\d{2}:\d{2}(?:\.\d{2})?\]\s*/, '').trim()
-
       if (text) {
         lines.push({ text, timestamp: totalSeconds })
       }
@@ -293,6 +287,24 @@ const parseLyrics = (syncedLyrics: string) => {
   })
 
   return lines
+}
+
+// Update bounds for current line (keep float seconds)
+const updateBounds = () => {
+  if (lyricsLines.value.length === 0) return
+  const lineIndex = currentLine.value - 1
+  if (lineIndex >= 0 && lineIndex < lyricsLines.value.length) {
+    currentLineStartTime.value = lyricsLines.value[lineIndex].timestamp
+    currentLineEndTime.value =
+      lineIndex + 1 < lyricsLines.value.length
+        ? lyricsLines.value[lineIndex + 1].timestamp
+        : currentLineStartTime.value + 10
+    currentLineText.value = lyricsLines.value[lineIndex].text
+
+    console.log(
+      `🎵 BOUNDS UPDATED - Line ${currentLine.value}: ${currentLineStartTime.value}s to ${currentLineEndTime.value}s`
+    )
+  }
 }
 
 // Computed
@@ -328,20 +340,11 @@ const fetchSongData = async () => {
     if (foundSong.matched_song?.lyrics?.synced_lyrics) {
       lyricsLines.value = parseLyrics(foundSong.matched_song.lyrics.synced_lyrics)
       totalLines.value = lyricsLines.value.length
-      if (lyricsLines.value.length > 0) {
-        currentLineText.value = lyricsLines.value[0].text
-      }
-      
-      // Debug: Log the parsed lyrics
-      console.log('🎵 PARSED LYRICS:', lyricsLines.value.slice(0, 3).map((line, i) => 
-        `Line ${i + 1}: [${line.timestamp.toFixed(2)}s] ${line.text}`
-      ))
+      updateBounds()
     } else {
-      // Fallback mock data
       lyricsLines.value = []
       totalLines.value = 4
-      currentLineText.value = '最初からもう間に合わない場所に居たんだ'
-      console.log('🎵 Using fallback mock data - no synced lyrics available')
+      currentLineText.value = 'エラーが発生しました！'
     }
   } catch (err) {
     console.error('Error fetching song data:', err)
@@ -351,46 +354,18 @@ const fetchSongData = async () => {
   }
 }
 
-// Playback controls
-const togglePlayback = async () => {
-  console.log(`🎵 TOGGLE PLAYBACK - Current state: playing=${spotifyIsPlaying.value}, line=${currentLine.value}, pos=${currentPosition.value.toFixed(2)}s`)
-  
-  if (!songData.value?.matched_song?.song?.spotify_id) {
-    console.error('No Spotify ID available for this song')
-    return
-  }
-  if (!embedController || !IFrameReady.value) {
-    console.warn('Spotify player not ready')
-    return
-  }
+// Toggle playback
+const togglePlayback = () => {
+  if (!embedController || !IFrameReady.value) return
 
-  if (!spotifyIsPlaying.value) {
-    // Check if we can play from current position
-    const withinBounds = isWithinCurrentLineBounds()
-    console.log(`🎵 Can play from current position: ${withinBounds}`)
-    
-    if (withinBounds) {
-      console.log(`🎵 Starting playback for line ${currentLine.value}`)
-      embedController.play()
-      isAutoPaused.value = false
-    } else {
-      // If not within bounds, seek to the start of the current line first
-      console.log('🎵 Not within bounds, seeking to line start first')
-      seekToLine(currentLine.value)
-      // Small delay to ensure seek completes before playing
-      setTimeout(() => {
-        if (embedController && isWithinCurrentLineBounds()) {
-          console.log('🎵 Seek completed, starting playback')
-          embedController.play()
-          isAutoPaused.value = false
-        } else {
-          console.log('🎵 Still not within bounds after seek')
-        }
-      }, 200)
-    }
-  } else {
-    console.log('🎵 Pausing playback')
+  if (isPlaying.value) {
     embedController.pause()
+  } else {
+    if (isAutoPaused.value) {
+      seekToLineStart()
+      isAutoPaused.value = false
+    }
+    embedController.resume()
   }
 }
 
@@ -399,11 +374,10 @@ const previousLine = () => {
     currentLine.value--
     userInput.value = ''
     isAutoPaused.value = false
-
-    if (lyricsLines.value.length > 0 && currentLine.value <= lyricsLines.value.length) {
-      currentLineText.value = lyricsLines.value[currentLine.value - 1].text
-    }
-    seekToLine(currentLine.value)
+    updateBounds()
+    seekToLineStart()
+    isPlaying.value = false
+		canPlay.value = true
   }
 }
 
@@ -412,129 +386,25 @@ const nextLine = () => {
     currentLine.value++
     userInput.value = ''
     isAutoPaused.value = false
-
-    if (lyricsLines.value.length > 0 && currentLine.value <= lyricsLines.value.length) {
-      currentLineText.value = lyricsLines.value[currentLine.value - 1].text
-    }
-    seekToLine(currentLine.value)
+    updateBounds()
+    seekToLineStart()
+    isPlaying.value = false
+		canPlay.value = true
   }
 }
 
 const replayLine = () => {
-  seekToLine(currentLine.value)
+  seekToLineStart()
+  isPlaying.value = false
+  canPlay.value = true
 }
 
-const restartLine = () => {
-  console.log('Restarting current line')
-  seekToLine(currentLine.value)
-  isAutoPaused.value = false
-}
-
-const seekToLine = (lineNumber: number) => {
-  if (!embedController || !IFrameReady.value || lyricsLines.value.length === 0) {
-    console.warn('Cannot seek: player not ready or no lyrics available')
-    return
-  }
-
-  const lineIndex = lineNumber - 1
-  if (lineIndex >= 0 && lineIndex < lyricsLines.value.length) {
-    const timestamp = lyricsLines.value[lineIndex].timestamp
-    console.log(`🎵 SEEKING to line ${lineNumber} at ${timestamp}s`)
-    embedController.seek(timestamp)
-    isAutoPaused.value = false
-  } else {
-    console.warn(`Cannot seek to line ${lineNumber}: invalid line index ${lineIndex}`)
-  }
-}
-
-const isWithinCurrentLineBounds = () => {
-  if (lyricsLines.value.length === 0) return true
-
-  const lineIndex = currentLine.value - 1
-  const currentLineStart = lyricsLines.value[lineIndex]?.timestamp || 0
-  const nextLineStart =
-    lineIndex + 1 < lyricsLines.value.length
-      ? lyricsLines.value[lineIndex + 1].timestamp
-      : currentLineStart + 10
-
-  // Simple bounds check: allow playing if we're before or at the line end
-  const canPlay = currentPosition.value < nextLineStart
-
-  console.log(
-    `BOUNDS CHECK - Line ${currentLine.value}: pos=${currentPosition.value.toFixed(2)}s, end=${nextLineStart}s, canPlay=${canPlay}`
-  )
-
-  return canPlay
-}
-
-// Computed for play button state
-const canPlay = computed(() => {
-  return isWithinCurrentLineBounds() && !spotifyIsPlaying.value
-})
-
-// Simple auto-pause logic - check every 0.5 seconds
-const startAutoPauseMonitoring = () => {
-  if (autoPauseTimer) clearInterval(autoPauseTimer)
-  
-  autoPauseTimer = setInterval(() => {
-    if (!spotifyIsPlaying.value || isAutoPaused.value || lyricsLines.value.length === 0 || !embedController) {
-      return
-    }
-
-    const lineIndex = currentLine.value - 1
-    const nextLineStart = lineIndex + 1 < lyricsLines.value.length
-      ? lyricsLines.value[lineIndex + 1].timestamp
-      : lyricsLines.value[lineIndex].timestamp + 10
-
-    // Simple check: if current position >= next line start, pause
-    if (currentPosition.value >= nextLineStart) {
-      console.log(`🎵 AUTO-PAUSE: pos=${currentPosition.value.toFixed(2)}s >= end=${nextLineStart}s`)
-      embedController.pause()
-      isAutoPaused.value = true
-    }
-  }, 500) // Check every 0.5 seconds
-}
-
-const stopAutoPauseMonitoring = () => {
-  if (autoPauseTimer) {
-    clearInterval(autoPauseTimer)
-    autoPauseTimer = null
-  }
-}
-
-// Navigation
-const goToLine = (lineNum: number) => {
-  currentLine.value = lineNum
-  userInput.value = ''
-  isAutoPaused.value = false
-
-  if (lyricsLines.value.length > 0 && lineNum <= lyricsLines.value.length) {
-    currentLineText.value = lyricsLines.value[lineNum - 1].text
-  }
-  seekToLine(lineNum)
-}
-
-// Answer checking
-const checkAnswer = () => {
-  console.log(
-    'Checking answer for line:',
-    currentLine.value,
-    'Input:',
-    userInput.value
-  )
-}
-
-// Debug
-const testAutoPause = () => {
-  console.log('Testing auto-pause...')
-  embedController?.pause()
-  isAutoPaused.value = true
-}
-
-const resetAutoPause = () => {
-  console.log('Resetting auto-pause state...')
-  isAutoPaused.value = false
-  lastPlayTime.value = Date.now()
+const seekToLineStart = () => {
+  if (!embedController || !IFrameReady.value) return
+  const seekSec = Math.round(currentLineStartTime.value) // int seconds
+  console.log(`🎵 SEEK - To line start: ${seekSec}s`)
+  embedController.seek(seekSec)
+  currentPlaybackTime.value = currentLineStartTime.value
 }
 
 // Spotify iframe setup
@@ -552,7 +422,6 @@ const initializeSpotifyPlayer = () => {
 
 const setIFrameWithID = (trackID: string) => {
   IFrameReady.value = false
-
   if (!controllerCreated.value) {
     const element = document.getElementById('song-spotify-player-iframe') as HTMLElement
     const options = { height: '152px', width: '100%' }
@@ -565,28 +434,23 @@ const setIFrameWithID = (trackID: string) => {
       })
 
       embedController.addListener('playback_update', (state: any) => {
-        const wasPlaying = spotifyIsPlaying.value
-        spotifyIsPlaying.value = !state.paused
-        
-        // Simple position update - just use what Spotify gives us
-        if (typeof state.position === 'number' && !isNaN(state.position)) {
-          currentPosition.value = state.position / 1000
-        }
+        isPlaying.value = !state.data.isPaused
+        currentPlaybackTime.value = state.data.position / 1000 // float seconds
 
-        if (spotifyIsPlaying.value && !wasPlaying) {
-          console.log('🎵 Started playing, starting auto-pause monitoring')
-          startAutoPauseMonitoring()
-        } else if (!spotifyIsPlaying.value && wasPlaying) {
-          console.log('🎵 Stopped playing, stopping auto-pause monitoring')
-          stopAutoPauseMonitoring()
+        if (isPlaying.value && !isAutoPaused.value) {
+          if (currentPlaybackTime.value >= currentLineEndTime.value) {
+            console.log(`🎵 AUTO-PAUSE`)
+            embedController.pause()
+            isAutoPaused.value = true
+            canPlay.value = false
+          }
         }
       })
 
       embedController.addListener('playback_started', (e: any) => {
         console.log('Playback started for:', e.data?.playingURI)
-        spotifyIsPlaying.value = true
+        isPlaying.value = true
         isAutoPaused.value = false
-        startAutoPauseMonitoring()
       })
     }
 
@@ -619,7 +483,6 @@ onUnmounted(() => {
   if (embedController) {
     embedController = null
   }
-  stopAutoPauseMonitoring()
 })
 </script>
 

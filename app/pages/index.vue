@@ -57,7 +57,7 @@
 			<!-- Songs grid -->
 			<div v-else class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<UCard v-for="(libraryItem, idx) in filteredSongs" :key="idx" variant="outline" class="overflow-hidden">
-					<div class="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center relative overflow-hidden">
+					<div class="w-full h-[18rem] bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center relative overflow-hidden">
 						<img 
 							v-if="libraryItem.matched_song?.song?.album_image_url" 
 							:src="libraryItem.matched_song.song.album_image_url" 
