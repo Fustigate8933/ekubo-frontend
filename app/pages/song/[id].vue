@@ -86,7 +86,7 @@
         <div class="space-y-6">
           <!-- Music Player Card -->
           <UCard class="p-6">
-            <div class="flex items-center gap-3 mb-4">
+            <div class="flex items-center gap-3 mb-6">
               <UIcon name="i-lucide-speaker" class="text-xl text-blue-600" />
               <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
                 Listen & Transcribe
@@ -94,7 +94,7 @@
             </div>
 
             <!-- Music Player Controls -->
-            <div class="flex items-center justify-center gap-4">
+            <div class="flex items-center justify-center gap-4 mb-4">
               <UButton
                 variant="outline"
                 size="lg"
@@ -139,13 +139,45 @@
             <div
               class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4"
             >
-              <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                Current Line:
-              </p>
-              <p class="text-lg font-medium text-gray-900 dark:text-white">
-                {{ currentLineText }}
-              </p>
-            </div>
+							<div v-if="!highlightedResult.length">
+								<p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
+									Current Line:
+								</p>
+								<p class="text-lg font-medium text-gray-900 dark:text-white">
+									{{ currentLineText }}
+								</p>
+							</div>
+
+							<div v-else>
+								<p class="text-sm text-gray-600 dark:text-gray-300 mb-2">
+									Your Answer:
+								</p>
+								<p class="text-lg font-medium flex flex-wrap gap-1">
+									<span
+										v-for="(item, idx) in highlightedResult"
+										:key="idx"
+										:class="[
+											'px-1 rounded',
+											item.status === 'correct' ? 'bg-green-500 text-white' :
+												item.status === 'present' ? 'bg-yellow-400 text-white' :
+													item.status === 'absent' ? 'bg-red-500 text-white' :
+														'bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200'
+										]"
+									>
+										{{ item.char }}
+									</span>
+
+									<!-- extra user input beyond the lyric length -->
+									<span
+										v-for="(e, i) in extraInput"
+										:key="'extra-' + i"
+										class="px-1 rounded bg-red-500 text-white"
+									>
+										{{ e.char }}
+									</span>
+								</p>
+							</div>
+						</div>
 
             <!-- User Input Section -->
             <div class="space-y-3">
@@ -167,7 +199,16 @@
                 @click="checkAnswer"
               >
                 Check Answer
-              </UButton>
+							</UButton>
+
+							<UButton
+								v-if="highlightedResult.length || extraInput.length"
+								class="w-full text-center flex justify-center items-center"
+								variant="outline"
+								@click="clearAnswer"
+							>
+								Retry answer
+							</UButton>
             </div>
           </UCard>
         </div>
@@ -281,8 +322,70 @@ const lyricsLines = ref<Array<{ text: string; timestamp: number }>>([])
 const totalLines = ref(0)
 const currentLineText = ref('')
 
+// matching
+const highlightedResult = ref<Array<{ char: string; status: 'correct' | 'present' | 'absent' | 'missing' }>>([])
+const extraInput = ref<Array<{ char: string; status: 'absent' | 'present' }>>([]) // user input that is longer than the correct lyric
+
 const checkAnswer = () => {
+	const correct = (currentLineText.value || '').trim()
+	const input = (userInput.value || '').trim()
+
+	// split by character
+	const correctChars = Array.from(correct)
+	const inputChars = Array.from(input)
+
+	const correctLen = correctChars.length
+  const inputLen = inputChars.length
 	
+	// initialize as missing
+	highlightedResult.value = correctChars.map((c) => ({ char: c, status: 'missing' as const }))
+
+	const usedInput = new Array(inputLen).fill(false) // used to prevent reuse of characters
+
+	const minLen = Math.min(correctLen, inputLen)
+  for (let i = 0; i < minLen; i++) {
+    if (inputChars[i] === correctChars[i]) {
+      highlightedResult.value[i].status = 'correct'
+      usedInput[i] = true
+    }
+  }
+
+  // find misplaced matches
+  for (let i = 0; i < correctLen; i++) {
+    if (highlightedResult.value[i].status === 'correct') continue
+
+    let found = false
+    for (let j = 0; j < inputLen; j++) {
+      if (!usedInput[j] && inputChars[j] === correctChars[i]) {
+        highlightedResult.value[i].status = 'present'
+        usedInput[j] = true
+        found = true
+        break
+      }
+    }
+
+    if (!found) {
+      // If input shorter keep as missing
+      highlightedResult.value[i].status = i < inputLen ? 'absent' : 'missing'
+    }
+  }
+
+  // user typed too many chars
+  extraInput.value = []
+  if (inputLen > correctLen) {
+    for (let j = correctLen; j < inputLen; j++) {
+      extraInput.value.push({
+        char: inputChars[j],
+        status: usedInput[j] ? 'present' : 'absent',
+      })
+    }
+  }
+}
+
+const clearAnswer = () => {
+  userInput.value = ''
+  highlightedResult.value = []
+  extraInput.value = []
 }
 
 // Parse synced lyrics into lines with timestamps
