@@ -344,8 +344,8 @@ const toggleAnswerVisibility = () => {
 }
 
 const checkAnswer = () => {
-	const correct = (currentLineText.value || '').trim()
-	const input = (userInput.value || '').trim()
+  const correct = (currentLineText.value || '').replace(/\s+/g, '')
+  const input = (userInput.value || '').replace(/\s+/g, '')
 
 	// split by character
 	const correctChars = Array.from(correct)
@@ -516,6 +516,7 @@ const previousLine = () => {
     seekToLineStart()
     isPlaying.value = false
 		canPlay.value = true
+		clearAnswer()
   }
 }
 
@@ -528,6 +529,7 @@ const nextLine = () => {
     seekToLineStart()
     isPlaying.value = false
 		canPlay.value = true
+		clearAnswer()
   }
 }
 
