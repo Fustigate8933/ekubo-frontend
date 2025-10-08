@@ -14,6 +14,7 @@
 				<UButton class="w-full flex justify-center text-lg" type="submit" :loading="loading">
 					{{ isLogin ? 'Login' : 'Sign Up' }}
 				</UButton>
+				<h1 v-if="submitError" class="text-error text-center text-sm">There was an error {{ isLogin ? 'Logging in' : 'Signing up' }}, please try again.</h1>
 			</UForm>
 			<div class="text-center">
 				<span>
@@ -62,6 +63,8 @@ const state = reactive({
 	password: '',
 })
 
+const submitError = ref(false)
+
 type LoginFormData = z.infer<typeof schema.value>
 
 async function onSubmit(event: FormSubmitEvent<LoginFormData>) {
@@ -71,13 +74,17 @@ async function onSubmit(event: FormSubmitEvent<LoginFormData>) {
 	const signup = await useSignup()
 
 	try {
-		if (!isLogin.value) {
+		if (!isLogin.value) { // signup first before logging in
 			await signup(event.data)
 		}
-		await login(event.data)
 
-		const redirectUri = (route.query.redirect as string) || "/"
-		router.push(redirectUri)
+		const { success } = await login(event.data)
+		if (!success) {
+			submitError.value = true
+		} else {
+			const redirectUri = (route.query.redirect as string) || "/"
+			router.push(redirectUri)
+		}
 	} catch (e) {
 		console.error(e)
 	} finally {

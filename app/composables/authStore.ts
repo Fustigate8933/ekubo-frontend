@@ -45,8 +45,9 @@ export const useLogin = async () => {
 			tokenCookie.value = token
 			authToken.value = token
 			parseUserData(token)
+			return { success: true }
 		} catch (e) {
-			console.error(e)
+			return { success: false, error: e }
 		}
   }
 }
@@ -58,8 +59,9 @@ export const useSignup = async () => {
 				method: 'POST',
 				body
 			})
+			return { success: true }
 		} catch (e) {
-			console.error(e)
+			return { success: false, error: e }
 		}
   }
 }

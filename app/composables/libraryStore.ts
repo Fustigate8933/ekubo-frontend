@@ -11,11 +11,9 @@ export const useLibraryStore = () => {
     
     try {
       const data = await $fetch<UserLibraryWithDetails[]>(`/api/library/${userId}`)
-			console.log("User library store fetch: ", data)
       library.value = data
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Failed to fetch library'
-      console.error('Error fetching library:', err)
     } finally {
       loading.value = false
     }

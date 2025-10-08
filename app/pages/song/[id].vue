@@ -344,7 +344,7 @@ const toggleAnswerVisibility = () => {
 }
 
 const checkAnswer = () => {
-  const correct = (currentLineText.value || '').replace(/\s+/g, '')
+  const correct = (currentLineText.value || '').replace(/\s+/g, '') // omit the spaces
   const input = (userInput.value || '').replace(/\s+/g, '')
 
 	// split by character
@@ -439,9 +439,9 @@ const updateBounds = () => {
         : currentLineStartTime.value + 10
     currentLineText.value = lyricsLines.value[lineIndex].text
 
-    console.log(
-      `🎵 BOUNDS UPDATED - Line ${currentLine.value}: ${currentLineStartTime.value}s to ${currentLineEndTime.value}s`
-    )
+    // console.log(
+    //   `🎵 BOUNDS UPDATED - Line ${currentLine.value}: ${currentLineStartTime.value}s to ${currentLineEndTime.value}s`
+    // )
   }
 }
 
@@ -541,8 +541,8 @@ const replayLine = () => {
 
 const seekToLineStart = () => {
   if (!embedController || !IFrameReady.value) return
-  const seekSec = Math.round(currentLineStartTime.value) // int seconds
-  console.log(`🎵 SEEK - To line start: ${seekSec}s`)
+  const seekSec = Math.round(currentLineStartTime.value) - 1 // int seconds
+  // console.log(`🎵 SEEK - To line start: ${seekSec}s`)
   embedController.seek(seekSec)
   currentPlaybackTime.value = currentLineStartTime.value
 }
@@ -579,7 +579,7 @@ const setIFrameWithID = (trackID: string) => {
 
         if (isPlaying.value && !isAutoPaused.value) {
           if (currentPlaybackTime.value >= currentLineEndTime.value) {
-            console.log(`🎵 AUTO-PAUSE`)
+            // console.log(`🎵 AUTO-PAUSE`)
             embedController.pause()
             isAutoPaused.value = true
             canPlay.value = false
@@ -588,7 +588,7 @@ const setIFrameWithID = (trackID: string) => {
       })
 
       embedController.addListener('playback_started', (e: any) => {
-        console.log('Playback started for:', e.data?.playingURI)
+        // console.log('Playback started for:', e.data?.playingURI)
         isPlaying.value = true
         isAutoPaused.value = false
       })

@@ -63,20 +63,20 @@
 							:src="libraryItem.matched_song.song.album_image_url" 
 							:alt="`${libraryItem.matched_song?.song?.title} album cover`"
 							class="w-full h-full object-cover"
-						/>
+						>
 						<UIcon v-else name="i-lucide-music" class="text-white text-4xl" />
 					</div>
 					<template #footer>
 						<div class="flex flex-col gap-2">
 							<div>
-								<h1 class="font-bold text-lg">
+								<h1 class="font-bold text-lg truncate">
 									{{ libraryItem.matched_song?.song?.title || 'Unknown Title' }}
 								</h1>
 								<p class="text-gray-600 dark:text-gray-300">
 									{{ libraryItem.matched_song?.song?.artist || 'Unknown Artist' }}
 								</p>
 								<p v-if="libraryItem.matched_song?.song?.album" class="text-sm text-gray-500">
-									{{ libraryItem.matched_song.song.album }}
+									{{ libraryItem.matched_song.song.album || 'Unknown Album' }}
 								</p>
 							</div>
 							<NuxtLink :to="`/song/${libraryItem.matched_song?.song?.id}`">
