@@ -11,7 +11,6 @@ export default defineEventHandler(async (event) => {
     const data = await $fetch(`${url}?${params}`, {
       method: "GET",
     })
-		console.log(data)
     return data
   } catch (err: unknown) {
     if (err instanceof Error) {
