@@ -107,7 +107,7 @@
 							{{ match.song.artist }}
 						</p>
 						<div class="flex gap-2">
-							<UButton color="info">
+							<UButton color="info" :disabled="addingSong" :loading="addingSong" @click="addMatchedSong(match)">
 								<h1>Add Track</h1>
 							</UButton>
 						</div>
@@ -160,6 +160,8 @@ const filteredSearchResults = computed(() =>
 const matchedResults = ref([])
 const overlay = useOverlay()
 const trackSelectModal = overlay.create(TrackSelectModal)
+const userData = useUserData()
+const addingSong = ref(false)
 
 const trackSelectModalOpen = async (songData: SongResponse) => {
 	trackSelectModal.open({ 
@@ -207,6 +209,30 @@ const handleSearchFromPopular = (name: string) => {
 		}
 	}
 };
+
+const addMatchedSong = async (match) => {
+	addingSong.value = true
+
+	if (!userData.value?.id) {
+    return
+  }
+
+	try {
+		await $fetch('/api/library', {
+			method: 'POST',
+			body: {
+				user_id: userData.value.id,
+				matched_song_id: match.id
+			}
+		})
+
+		await navigateTo('/')
+	} catch (error) {
+		console.error('Error adding song to library:', error)
+	} finally {
+		addingSong.value = false
+	}
+}
 </script>
 
 <style scoped>
