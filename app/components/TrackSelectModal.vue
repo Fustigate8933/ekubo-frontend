@@ -18,7 +18,7 @@
 		</template>
     <template #footer>
       <UButton 
-        label="Submit" 
+        label="Add" 
         color="primary" 
         :loading="submitting"
         :disabled="!selectedTrack || submitting"

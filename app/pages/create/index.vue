@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full flex flex-col gap-10 pt-10">
+  <div class="w-full h-full flex flex-col gap-10 py-10">
     <div class="flex justify-between">
       <div class="p-2">
         <h1 class="font-bold text-2xl">Add a new song</h1>
@@ -82,6 +82,40 @@
         >
       </div>
     </div>
+
+		<!-- Already matched songs -->
+		<UCard
+			v-for="match in matchedResults"
+			:key="match.song.id"
+			variant="outline"
+		>
+			<template #footer>
+				<div class="flex flex-col gap-2">
+					<div class="flex justify-between items-center">
+						<h1 class="font-bold text-lg">
+							{{ match.song.title }}
+						</h1>
+						<UBadge class="self-start" color="success">
+							Matched
+						</UBadge>
+					</div>
+					<UBadge class="self-start" color="secondary">
+						{{ secondsToMinAndSec(match.song.duration) }}
+					</UBadge>
+					<div class="flex justify-between">
+						<p>
+							{{ match.song.artist }}
+						</p>
+						<div class="flex gap-2">
+							<UButton color="info">
+								<h1>Add Track</h1>
+							</UButton>
+						</div>
+					</div>
+				</div>
+			</template>
+		</UCard>
+
     <UCard
       v-for="song in filteredSearchResults"
       :key="song.id"
@@ -121,8 +155,9 @@ const loading = ref<boolean>(false)
 const searchResults = ref<SongResponse[]>([])
 const filteredSearchResults = computed(() =>
   searchResults.value.filter((result) => result.syncedLyrics),
-	console.log(searchResults.value)
+	// console.log(searchResults.value)
 ); // only want the synced lyrics
+const matchedResults = ref([])
 const overlay = useOverlay()
 const trackSelectModal = overlay.create(TrackSelectModal)
 
@@ -130,8 +165,6 @@ const trackSelectModalOpen = async (songData: SongResponse) => {
 	trackSelectModal.open({ 
 		songData,
 		onClose: () => {
-			// Refresh the page or library when modal closes
-			// This will be handled by the modal's redirect
 		}
 	})
 }
@@ -144,10 +177,14 @@ const handleSearch = async () => {
       q: search.value ?? "",
     };
 
-    const { data, error } = await useFetch<SongResponse[]>("/api/searchSongs", {
-      params,
-    });
+		const { data: matchedData, error: matchedError } = await useFetch("/api/matched", { params })
+		if (matchedError.value) {
+			console.error(matchedError.value)
+		} else {
+			matchedResults.value = matchedData.value
+		}
 
+    const { data, error } = await useFetch<SongResponse[]>("/api/searchSongs", { params });
     if (error.value) {
       console.error(error.value);
     } else {
@@ -172,4 +209,5 @@ const handleSearchFromPopular = (name: string) => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>
