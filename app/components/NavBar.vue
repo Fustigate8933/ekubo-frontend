@@ -19,7 +19,7 @@
 			>
 				<UButton class="flex justify-center items-center" size="md" color="info" variant="solid">{{ userData.username }}</UButton>
 			</UDropdownMenu>
-			<UButton class="flex justify-center items-center" icon="material-symbols:add-circle-outline" to="/create" size="md" color="primary" variant="solid">Add Song</UButton>
+			<UButton class="flex justify-center items-center" to="/create" size="md" color="primary" variant="solid">Add Song</UButton>
 			<ThemeToggleButton />
 		</div>
 	</div>

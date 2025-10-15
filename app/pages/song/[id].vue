@@ -286,7 +286,7 @@
       v-if="songData?.matched_song?.song?.spotify_id"
       class="bg-white dark:bg-gray-800 shadow-lg rounded-lg mb-6"
     >
-      <div class="p-4">
+      <div id="song-spotify-player-iframe-wrapper" class="p-4">
         <div id="song-spotify-player-iframe" class="w-full" />
       </div>
     </div>
@@ -438,10 +438,6 @@ const updateBounds = () => {
         ? lyricsLines.value[lineIndex + 1].timestamp
         : currentLineStartTime.value + 10
     currentLineText.value = lyricsLines.value[lineIndex].text
-
-    // console.log(
-    //   `🎵 BOUNDS UPDATED - Line ${currentLine.value}: ${currentLineStartTime.value}s to ${currentLineEndTime.value}s`
-    // )
   }
 }
 
@@ -599,10 +595,15 @@ const setIFrameWithID = (trackID: string) => {
 
     const IFrameElements = document.getElementsByTagName('iframe')
     for (let i = 0; i < IFrameElements.length; i++) {
-      const el = IFrameElements[i] as HTMLIFrameElement
-      el.style.height = '152px'
-      el.style.borderRadius = '12px'
-      el.style.width = '100%'
+			if (IFrameElements[i].src.includes("sdk.scdn.co")) {
+				IFrameElements[i].remove();
+				console.log("Removed ghost iframe")
+			} else {
+				const el = IFrameElements[i] as HTMLIFrameElement
+				el.style.height = '152px'
+				el.style.borderRadius = '12px'
+				el.style.width = '100%'
+			}
     }
   }
 
