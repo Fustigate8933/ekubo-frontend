@@ -24,7 +24,7 @@
 				Select from your collection of Japanese songs to practice your listening skills. Each song will play line by line, allowing you to transcribe and learn at your own pace.
 			</p>
 			<div class="w-full">
-				<UInput v-model="search" icon="i-lucide-search" size="lg" variant="outline" placeholder="Search by song or artist" />
+				<UInput v-model="filterParams.search" icon="i-lucide-search" size="lg" variant="outline" placeholder="Search by song or artist" />
 			</div>
 
 			<!-- Loading state -->
@@ -94,7 +94,10 @@
 </template>
 
 <script setup lang="ts">
-const search = ref("")
+const filterParams = ref({
+	search: "",
+	newestFirst: true
+})
 
 // Authentication
 const authToken = useAuthToken()
@@ -107,16 +110,25 @@ const { library, loading, error, fetchUserLibrary, clearLibrary } = useLibrarySt
 // Filtered songs from library
 const filteredSongs = computed(() => {
   if (!library.value) return []
+	console.log(library.value)
   
-  return library.value.filter(libraryItem => {
+  let filteredLibrary = library.value.filter(libraryItem => {
     const song = libraryItem.matched_song?.song
     if (!song) return false
     
-    const searchTerm = search.value.toLowerCase()
+    const searchTerm = filterParams.value.search.toLowerCase()
     return song.title.toLowerCase().includes(searchTerm) ||
            song.artist.toLowerCase().includes(searchTerm) ||
            (song.album && song.album.toLowerCase().includes(searchTerm))
   })
+	
+	if (filterParams.value.newestFirst) {
+		filteredLibrary.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+	} else {
+		filteredLibrary.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+	}
+
+	return filteredLibrary
 })
 
 // Refresh library function
