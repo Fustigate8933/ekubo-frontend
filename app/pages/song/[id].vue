@@ -533,6 +533,11 @@ const replayLine = () => {
   seekToLineStart()
   isPlaying.value = false
   canPlay.value = true
+	embedController.resume()
+
+	if (!isPlaying.value) {
+		togglePlayback()
+	}
 }
 
 const seekToLineStart = () => {
