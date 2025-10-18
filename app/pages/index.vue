@@ -87,10 +87,10 @@
 								<h1 class="font-bold text-lg truncate">
 									{{ libraryItem.matched_song?.song?.title || 'Unknown Title' }}
 								</h1>
-								<p class="text-gray-600 dark:text-gray-300">
+								<p class="text-gray-600 dark:text-gray-300 truncate">
 									{{ libraryItem.matched_song?.song?.artist || 'Unknown Artist' }}
 								</p>
-								<p v-if="libraryItem.matched_song?.song?.album" class="text-sm text-gray-500">
+								<p v-if="libraryItem.matched_song?.song?.album" class="text-sm text-gray-500 truncate">
 									{{ libraryItem.matched_song.song.album || 'Unknown Album' }}
 								</p>
 							</div>
