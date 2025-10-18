@@ -23,8 +23,11 @@
 			<p class="text-lg max-w-3xl text-center">
 				Select from your collection of Japanese songs to practice your listening skills. Each song will play line by line, allowing you to transcribe and learn at your own pace.
 			</p>
-			<div class="w-full">
+			<div class="w-full flex justify-between items-center">
 				<UInput v-model="filterParams.search" icon="i-lucide-search" size="lg" variant="outline" placeholder="Search by song or artist" />
+				<div class="flex items-center gap-2">
+					<UButton icon="mdi:resize" variant="outline" color="secondary" @click="compactCards = !compactCards" />
+				</div>
 			</div>
 
 			<!-- Loading state -->
@@ -55,9 +58,21 @@
 			</div>
 
 			<!-- Songs grid -->
-			<div v-else class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div 
+				v-else
+				class="w-full grid gap-6" 
+				:class="[
+					'grid-cols-1',
+					compactCards
+						? ['md:grid-cols-3', 'lg:grid-cols-4']   // compact mode
+						: ['md:grid-cols-2', 'lg:grid-cols-3']   // regular mode
+				]"
+			>
 				<UCard v-for="(libraryItem, idx) in filteredSongs" :key="idx" variant="outline" class="overflow-hidden">
-					<div class="w-full h-[18rem] bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center relative overflow-hidden">
+					<div
+						class="w-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center relative overflow-hidden"
+						:style="{ height: activeCardConfig.lg.imgHeight }"
+					>
 						<img 
 							v-if="libraryItem.matched_song?.song?.album_image_url" 
 							:src="libraryItem.matched_song.song.album_image_url" 
@@ -97,6 +112,37 @@
 const filterParams = ref({
 	search: "",
 	newestFirst: true
+})
+
+// card size
+const compactCards = ref(true)
+const cardSizes = {
+	md: {
+		regular: {
+			cols: 2,
+			imgHeight: '16rem'
+		},
+		compact: {
+			cols: 3,
+			imgHeight: "14rem"
+		}
+	},
+	lg: {
+		regular: {
+			cols: 3,
+			imgHeight: '18rem'
+		},
+		compact: {
+			cols: 4,
+			imgHeight: '16rem'
+		}
+	}
+}
+const activeCardConfig = computed(() => {
+  return {
+    md: compactCards.value ? cardSizes.md.compact : cardSizes.md.regular,
+    lg: compactCards.value ? cardSizes.lg.compact : cardSizes.lg.regular
+  }
 })
 
 // Authentication
