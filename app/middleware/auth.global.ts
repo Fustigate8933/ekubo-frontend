@@ -3,7 +3,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   const protectedRoutes = ["/song", "/create"]
 
-  if (!token && protectedRoutes.includes(to.path)) {
+  if (!token && protectedRoutes.some(route => to.path.startsWith(route))) {
     return navigateTo(`/login?redirect=${to.fullPath}`)
   }
 })
