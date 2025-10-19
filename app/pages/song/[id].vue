@@ -266,14 +266,19 @@
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >💡</span
                 >
-                <span>If the spotify player says "preview", try logging into Spotify Web Player (no premium required) first and refresh Ekubo!</span>
+                <span>
+									If the spotify player says "preview", try 
+									<span class="underline"><NuxtLink to="https://open.spotify.com/" target="_blank">logging into Spotify</NuxtLink></span>
+									 first and refresh Ekubo! (no premium account required)
+									<span class="underline text-xs"><NuxtLink to="/song/browserCookiePerms" target="_blank">further help</NuxtLink></span>
+								</span>
               </li>
               <li class="flex items-center gap-3">
                 <span
                   class="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium"
                   >❗</span
                 >
-                <span class="">Don't click the spotify player below, may break!</span>
+                <span class="">Don't click the player at the bottom, may break!</span>
               </li>
             </ol>
           </UCard>
