@@ -20,4 +20,13 @@ useHead({
     }
   ]
 })
+
+useSeoMeta({
+	title: 'Ekubo - Japanese wordle',
+	ogTitle: 'Ekubo - Japanese wordle',
+	description: 'Learn Japanese by practiing typing out lyrics	from your favorite J-Pop songs.',
+	ogDescription: 'Learn Japanese by practiing typing out lyrics	from your favorite J-Pop songs.',
+	ogImage: '/ekubo.png',
+	twitterCard: 'summary_large_image'
+})
 </script>
