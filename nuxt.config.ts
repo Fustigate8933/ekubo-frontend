@@ -22,6 +22,13 @@ export default defineNuxtConfig({
 
 	app: {
 		head: {
+			title: "Ekubo",
+			htmlAttrs: {
+				lang: 'en',
+			},
+			link: [
+				{ rel: 'icon', type: 'image/x-icon', href: '/ekubo.png' }
+			],
 			script: [
 				{
 					src: 'https://open.spotify.com/embed/iframe-api/v1',
