@@ -12,9 +12,9 @@
 - Write meaningful variable and function names
 - Add JSDoc comments for complex functions
 
-### Vue.js Specific
-- Use Composition API with `<script setup>` syntax
-- Keep components focused and under 200 lines
+### Vue Specific
+- Use Composition API with `<script setup lang="ts">` syntax
+- Keep components focused and not bulky
 - Extract reusable logic into composables in `/composables`
 - Use props for parent-child communication
 
