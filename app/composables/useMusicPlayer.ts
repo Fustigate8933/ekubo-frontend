@@ -13,6 +13,7 @@ export interface SpotifyTrack {
 }
 
 export const useMusicPlayer = () => {
+  const toast = useToast()
   // State
   const isPlaying = ref(false)
   const currentTrack = ref<SpotifyTrack | null>(null)
@@ -47,6 +48,11 @@ export const useMusicPlayer = () => {
       // Check if Spotify Web Playback SDK is available
       if (!window.Spotify) {
         console.error('Spotify Web Playback SDK not loaded')
+        toast.add({
+          title: 'Spotify unavailable',
+          description: 'Spotify Web Playback SDK is not loaded in this browser.',
+          color: 'error',
+        })
         return false
       }
 
@@ -54,6 +60,11 @@ export const useMusicPlayer = () => {
       const token = await getAccessToken()
       if (!token) {
         console.error('No access token available')
+        toast.add({
+          title: 'Spotify authentication',
+          description: 'No Spotify access token available. Please connect your Spotify account.',
+          color: 'warning',
+        })
         return false
       }
 
@@ -69,18 +80,22 @@ export const useMusicPlayer = () => {
       // Error handling
       player.value.addListener('initialization_error', ({ message }: { message: string }) => {
         console.error('Failed to initialize:', message)
+        toast.add({ title: 'Spotify player error', description: String(message), color: 'error' })
       })
 
       player.value.addListener('authentication_error', ({ message }: { message: string }) => {
         console.error('Failed to authenticate:', message)
+        toast.add({ title: 'Spotify authentication failed', description: String(message), color: 'error' })
       })
 
       player.value.addListener('account_error', ({ message }: { message: string }) => {
         console.error('Failed to validate Spotify account:', message)
+        toast.add({ title: 'Spotify account error', description: String(message), color: 'error' })
       })
 
       player.value.addListener('playback_error', ({ message }: { message: string }) => {
         console.error('Failed to perform playback:', message)
+        toast.add({ title: 'Playback error', description: String(message), color: 'error' })
       })
 
       // Playback status updates
@@ -112,10 +127,12 @@ export const useMusicPlayer = () => {
         return true
       } else {
         console.error('Failed to connect to Spotify')
+        toast.add({ title: 'Spotify connection failed', description: 'Failed to connect to Spotify player.', color: 'error' })
         return false
       }
     } catch (error) {
-      console.error('Error initializing Spotify player:', error)
+        console.error('Error initializing Spotify player:', error)
+        toast.add({ title: 'Spotify initialization error', description: String((error as any)?.message ?? error), color: 'error' })
       return false
     }
   }
@@ -129,6 +146,7 @@ export const useMusicPlayer = () => {
       return null
     } catch (error) {
       console.error('Error getting access token:', error)
+      toast.add({ title: 'Spotify token error', description: String((error as any)?.message ?? error), color: 'error' })
       return null
     }
   }
@@ -136,6 +154,7 @@ export const useMusicPlayer = () => {
   const playTrack = async (track: SpotifyTrack) => {
     if (!player.value || !isReady.value) {
       console.error('Player not ready')
+      toast.add({ title: 'Player not ready', description: 'Spotify player is not ready yet.', color: 'warning' })
       return false
     }
 
@@ -170,6 +189,7 @@ export const useMusicPlayer = () => {
       return true
     } catch (error) {
       console.error('Error playing track:', error)
+      toast.add({ title: 'Playback failed', description: String((error as any)?.message ?? error), color: 'error' })
       return false
     }
   }

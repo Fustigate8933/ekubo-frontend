@@ -41,6 +41,7 @@ const router = useRouter()
 
 const loading = ref(false)
 const isLogin = ref(true)
+const toast = useToast()
 
 const loginSchema = z.object({
 	email: z.string().email('Invalid email'),
@@ -86,7 +87,9 @@ async function onSubmit(event: FormSubmitEvent<LoginFormData>) {
 			router.push(redirectUri)
 		}
 	} catch (e) {
-		console.error(e)
+			console.error(e)
+			submitError.value = true
+			toast.add({ title: isLogin.value ? 'Login failed' : 'Signup failed', description: String((e as any)?.data?.detail ?? (e as any)?.message ?? e ?? 'An error occurred'), color: 'error' })
 	} finally {
 		loading.value = false
 	}

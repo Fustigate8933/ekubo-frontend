@@ -157,11 +157,12 @@ const filteredSearchResults = computed(() =>
   searchResults.value.filter((result) => result.syncedLyrics),
 	// console.log(searchResults.value)
 ); // only want the synced lyrics
-const matchedResults = ref([])
+const matchedResults = ref<any[]>([])
 const overlay = useOverlay()
 const trackSelectModal = overlay.create(TrackSelectModal)
 const userData = useUserData()
 const addingSong = ref(false)
+const toast = useToast()
 
 const trackSelectModalOpen = async (songData: SongResponse) => {
 	trackSelectModal.open({ 
@@ -180,20 +181,23 @@ const handleSearch = async () => {
     };
 
 		const { data: matchedData, error: matchedError } = await useFetch("/api/matched", { params })
-		if (matchedError.value) {
-			console.error(matchedError.value)
-		} else {
-			matchedResults.value = matchedData.value
-		}
+    if (matchedError.value) {
+      console.error(matchedError.value)
+      toast.add({ title: 'Matched search failed', description: String(matchedError.value?.message ?? matchedError.value), color: 'error' })
+    } else {
+      matchedResults.value = matchedData.value as any[]
+    }
 
     const { data, error } = await useFetch<SongResponse[]>("/api/searchSongs", { params });
     if (error.value) {
       console.error(error.value);
+      toast.add({ title: 'Song search failed', description: String(error.value?.message ?? error.value), color: 'error' })
     } else {
       searchResults.value = data.value ?? [];
     }
   } catch (e) {
     console.error(e);
+    toast.add({ title: 'Search error', description: String((e as any)?.message ?? e ?? 'Search failed'), color: 'error' })
   } finally {
     loading.value = false;
   }
@@ -210,10 +214,16 @@ const handleSearchFromPopular = (name: string) => {
 	}
 };
 
-const addMatchedSong = async (match) => {
+const addMatchedSong = async (match: any) => {
 	addingSong.value = true
 
 	if (!userData.value?.id) {
+    addingSong.value = false
+    toast.add({
+      title: 'Login required',
+      description: 'Please log in to add songs to your library.',
+      color: 'warning',
+    })
     return
   }
 
@@ -228,7 +238,25 @@ const addMatchedSong = async (match) => {
 
 		await navigateTo('/')
 	} catch (error) {
-		console.error('Error adding song to library:', error)
+    // Show a user-friendly toast when the backend reports the song already exists
+    const e = error as any
+    const status = e?.statusCode ?? e?.status ?? e?.response?.status ?? null
+    const detail = e?.data?.detail ?? e?.data?.message ?? e?.message ?? ''
+
+    if (status === 400 || /already in library/i.test(String(detail))) {
+      toast.add({
+        title: 'Already in library',
+        description: detail || 'This song is already in your library.',
+        color: 'warning',
+      })
+    } else {
+      toast.add({
+        title: 'Error adding track',
+        description: detail || 'Failed to add the song. Please try again later.',
+        color: 'error',
+      })
+    }
+    console.error('Error adding song to library:', error)
 	} finally {
 		addingSong.value = false
 	}

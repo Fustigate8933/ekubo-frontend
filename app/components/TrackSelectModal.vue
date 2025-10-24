@@ -66,6 +66,7 @@ const selectedTrack = ref<Track | null>(null)
 // Get user data for API calls
 const userData = useUserData()
 const authToken = useAuthToken()
+const toast = useToast()
 
 const fetchTracks = async () => {
 	loading.value = true
@@ -81,11 +82,21 @@ const fetchTracks = async () => {
 
     if (error.value) {
       console.error("Error fetching tracks:", error.value);
+      toast.add({
+        title: 'Track search failed',
+        description: String(error.value?.message ?? error.value ?? 'Unable to search tracks'),
+        color: 'error',
+      })
     } else {
       tracks.value = data.value?.tracks || [];
     }
   } catch (e) {
     console.error("Unexpected error:", e);
+    toast.add({
+      title: 'Track search failed',
+      description: String((e as any)?.message ?? e ?? 'Unexpected error while searching tracks'),
+      color: 'error',
+    })
 	} finally {
 		loading.value = false
 	}
@@ -221,7 +232,29 @@ const handleSubmit = async () => {
     
   } catch (error) {
     console.error('Error adding song to library:', error)
-    // You could add a toast notification here
+    const e = error as any
+    const status = e?.statusCode ?? e?.status ?? e?.response?.status ?? null
+    const detail = e?.data?.detail ?? e?.data?.message ?? e?.message ?? ''
+
+    if (status === 400 || /already/i.test(String(detail))) {
+      toast.add({
+        title: 'Already in library',
+        description: detail || 'This song is already in your library.',
+        color: 'warning',
+      })
+    } else if (status) {
+      toast.add({
+        title: 'Error adding track',
+        description: detail || `Server returned ${status}`,
+        color: 'error',
+      })
+    } else {
+      toast.add({
+        title: 'Error adding track',
+        description: detail || 'Failed to add the song. Please try again later.',
+        color: 'error',
+      })
+    }
   } finally {
     submitting.value = false
   }

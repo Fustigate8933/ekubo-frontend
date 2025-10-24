@@ -573,6 +573,7 @@ const progressPercentage = computed(() => {
 
 // Fetch song data
 const fetchSongData = async () => {
+  const toast = useToast()
   try {
     loading.value = true
     error.value = null
@@ -607,6 +608,11 @@ const fetchSongData = async () => {
     }
   } catch (err) {
     console.error('Error fetching song data:', err)
+    toast.add({
+      title: 'Failed to load song',
+      description: String((err as any)?.data?.detail ?? (err as any)?.message ?? err ?? 'Unable to load song data'),
+      color: 'error',
+    })
     error.value = 'Failed to load song data'
   } finally {
     loading.value = false
@@ -677,6 +683,12 @@ const seekToLineStart = () => {
 const initializeSpotifyPlayer = () => {
   if (!songData.value?.matched_song?.song?.spotify_id) {
     console.error('No Spotify ID available for this song')
+    const toast = useToast()
+    toast.add({
+      title: 'No Spotify preview',
+      description: 'No Spotify ID available for this song to play a preview.',
+      color: 'warning',
+    })
     return
   }
 

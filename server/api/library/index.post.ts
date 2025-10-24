@@ -12,15 +12,14 @@ export default defineEventHandler(async (event) => {
     })
     return data
   } catch (err: unknown) {
-    if (err instanceof Error) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: `Failed to add to library: ${err.message}`
-      })
-    }
+    // Forward backend status and message when possible so the client can react
+    const e = err as any
+    const statusCode = e?.statusCode ?? e?.status ?? e?.response?.status ?? 500
+    // FastAPI uses `detail` for HTTPException details
+    const statusMessage = e?.data?.detail ?? e?.data?.message ?? e?.message ?? "Failed to add to library"
     throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to add to library: Unknown error"
+      statusCode,
+      statusMessage,
     })
   }
 })
