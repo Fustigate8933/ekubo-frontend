@@ -227,6 +227,64 @@
 
         <!-- Right Column: Instructions & Progress -->
         <div class="space-y-6">
+          <!-- Go to Line Card -->
+          <UCard class="p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <UIcon name="i-lucide-hash" class="text-xl text-blue-600" />
+              <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                Go to Line
+              </h2>
+            </div>
+
+            <!-- Navigation Container -->
+            <div class="space-y-3">
+              <!-- Line Number Grid -->
+              <div
+                ref="lineGridContainer"
+                class="grid gap-2"
+                :style="{ gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))` }"
+              >
+                <UButton
+                  v-for="lineNum in visibleLineNumbers"
+                  :key="lineNum"
+                  :variant="lineNum === currentLine ? 'solid' : 'outline'"
+                  :color="lineNum === currentLine ? 'primary' : 'neutral'"
+                  class="aspect-square flex items-center justify-center font-semibold"
+                  @click="goToLine(lineNum)"
+                >
+                  {{ lineNum }}
+                </UButton>
+              </div>
+
+              <!-- Navigation Controls -->
+              <div class="flex items-center justify-between gap-2">
+                <UButton
+                  variant="outline"
+                  size="sm"
+                  :disabled="currentPage <= 0"
+                  @click="previousPage"
+                >
+                  <UIcon name="i-lucide-chevron-left" />
+                  Previous
+                </UButton>
+
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{ currentPage + 1 }} / {{ totalPages }}
+                </span>
+
+                <UButton
+                  variant="outline"
+                  size="sm"
+                  :disabled="currentPage >= totalPages - 1"
+                  @click="nextPage"
+                >
+                  Next
+                  <UIcon name="i-lucide-chevron-right" />
+                </UButton>
+              </div>
+            </div>
+          </UCard>
+
           <!-- Instructions Card -->
           <UCard class="p-6">
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -343,6 +401,68 @@ const currentLineText = ref('')
 const highlightedResult = ref<Array<{ char: string; status: 'correct' | 'present' | 'absent' | 'missing' }>>([])
 const extraInput = ref<Array<{ char: string; status: 'absent' | 'present' }>>([]) // user input that is longer than the correct lyric
 const showAnswer = ref(false)
+
+// Line navigation state
+const lineGridContainer = ref<HTMLElement | null>(null)
+const columnsCount = ref(5) // Default to 5 columns
+const currentPage = ref(0)
+const itemsPerPage = computed(() => columnsCount.value * 2) // 2 rows
+
+// Calculate total pages needed
+const totalPages = computed(() => {
+  return Math.ceil(totalLines.value / itemsPerPage.value)
+})
+
+// Get visible line numbers for current page
+const visibleLineNumbers = computed(() => {
+  const start = currentPage.value * itemsPerPage.value + 1
+  const end = Math.min(start + itemsPerPage.value - 1, totalLines.value)
+  const numbers = []
+  for (let i = start; i <= end; i++) {
+    numbers.push(i)
+  }
+  return numbers
+})
+
+// Navigate to a specific line
+const goToLine = (lineNum: number) => {
+  if (lineNum >= 1 && lineNum <= totalLines.value) {
+    currentLine.value = lineNum
+    userInput.value = ''
+    isAutoPaused.value = false
+    updateBounds()
+    seekToLineStart()
+    isPlaying.value = false
+    canPlay.value = true
+    clearAnswer()
+  }
+}
+
+// Navigate to previous page
+const previousPage = () => {
+  if (currentPage.value > 0) {
+    currentPage.value--
+  }
+}
+
+// Navigate to next page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value - 1) {
+    currentPage.value++
+  }
+}
+
+// Calculate columns based on container width
+const updateColumnsCount = () => {
+  if (!lineGridContainer.value) return
+  
+  const containerWidth = lineGridContainer.value.offsetWidth
+  // Each button needs ~50px minimum (40px + gap)
+  const minButtonWidth = 50
+  const maxColumns = Math.floor(containerWidth / minButtonWidth)
+  // Clamp between 3 and 10 columns
+  columnsCount.value = Math.max(3, Math.min(10, maxColumns))
+}
 
 const toggleAnswerVisibility = () => {
   showAnswer.value = !showAnswer.value
@@ -628,12 +748,20 @@ onMounted(async () => {
   if (songData.value) {
     initializeSpotifyPlayer()
   }
+  
+  // Set up resize observer for dynamic column count
+  setTimeout(() => {
+    updateColumnsCount()
+  }, 100)
+  
+  window.addEventListener('resize', updateColumnsCount)
 })
 
 onUnmounted(() => {
   if (embedController) {
     embedController = null
   }
+  window.removeEventListener('resize', updateColumnsCount)
 })
 </script>
 
