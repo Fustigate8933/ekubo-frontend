@@ -223,6 +223,36 @@
 							</UButton>
             </div>
           </UCard>
+          <!-- Keybinds Card: sits below Listen & Transcribe to fill vertical space on the left -->
+          <div>
+            <UCard class="p-6">
+              <div class="flex items-center gap-3 mb-4">
+                <UIcon name="i-lucide-key" class="text-xl text-blue-600" />
+                <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Keybinds
+                </h2>
+              </div>
+
+              <ul class="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                <li class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-10 h-8 bg-gray-100 dark:bg-gray-700 rounded text-sm font-medium">←</span>
+                  <span>Previous line</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-10 h-8 bg-gray-100 dark:bg-gray-700 rounded text-sm font-medium">→</span>
+                  <span>Next line</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-16 h-8 bg-gray-100 dark:bg-gray-700 rounded text-sm font-medium">Enter</span>
+                  <span>Check answer (when you have typed something)</span>
+                </li>
+                <li class="flex items-center gap-3">
+                  <span class="inline-flex items-center justify-center w-16 h-8 bg-gray-100 dark:bg-gray-700 rounded text-sm font-medium">Tab</span>
+                  <span>Toggle play / pause (won't steal focus from inputs)</span>
+                </li>
+              </ul>
+            </UCard>
+          </div>
         </div>
 
         <!-- Right Column: Instructions & Progress -->
@@ -767,6 +797,8 @@ onMounted(async () => {
   }, 100)
   
   window.addEventListener('resize', updateColumnsCount)
+  // Keyboard navigation: left/right to navigate lines, Enter to check answer
+  window.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
@@ -774,7 +806,38 @@ onUnmounted(() => {
     embedController = null
   }
   window.removeEventListener('resize', updateColumnsCount)
+  window.removeEventListener('keydown', handleKeydown)
 })
+
+// Keyboard handler (defined after lifecycle for clarity)
+function handleKeydown(e: KeyboardEvent) {
+  // Ignore modifier-assisted navigation (e.g., Alt+Arrow), unless it's a plain key press
+  if (e.altKey || e.ctrlKey || e.metaKey) return
+
+  if (e.key === 'ArrowLeft') {
+    // go to previous line if possible
+    if (currentLine.value > 1) {
+      previousLine()
+      e.preventDefault()
+    }
+  } else if (e.key === 'ArrowRight') {
+    // go to next line if possible
+    if (currentLine.value < totalLines.value) {
+      nextLine()
+      e.preventDefault()
+    }
+  } else if (e.key === 'Enter') {
+    // When Enter is pressed, check answer if there's any non-empty input
+    if ((userInput.value || '').trim().length > 0) {
+      // Prevent a newline in the textarea and trigger the check
+      e.preventDefault()
+      checkAnswer()
+    }
+  } else if (e.key === 'Tab') {
+    e.preventDefault()
+    togglePlayback()
+  }
+}
 </script>
 
 <style scoped>
